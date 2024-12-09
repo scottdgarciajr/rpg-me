@@ -247,16 +247,46 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
 
   _onPropertyChange(event, prop) {
     const value = event.target.value;
-    this.characterProps[prop] = value;
-    this._updateSeed();  // Update seed whenever a character property changes
-    this.requestUpdate();
+    this.characterProps = {
+      ...this.characterProps,
+      [prop]: parseInt(value, 10),
+    };
+    this.requestUpdate(); // Re-render component
   }
-
+  
+  _updateSeed() {
+    // Regenerate seed based on current character properties
+    const props = [
+      this.characterProps.height.toString().padStart(3, "0"),
+      this.characterProps.width.toString().padStart(3, "0"),
+      this.characterProps.hair.toString().padStart(2, "0"),
+      this.characterProps.pants.toString().padStart(2, "0"),
+      this.characterProps.shirt.toString().padStart(2, "0"),
+    ];
+    this.seed = props.join(""); // Generate a fixed-length seed
+    this.updateSeedInUrl(this.seed);
+  }
+  
   _onSeedChange(event) {
     this.seed = event.target.value;
-    this.updateSeedInUrl(this.seed); // Update seed in URL when user changes it
+    this._applySeedToProperties(); // Update characterProps based on the new seed
+    this.updateSeedInUrl(this.seed);
     this.requestUpdate();
   }
+  
+  _applySeedToProperties() {
+    // Parse seed to update character properties
+    const seed = this.seed.padEnd(12, "0"); // Ensure minimum seed length
+    this.characterProps = {
+      ...this.characterProps,
+      height: parseInt(seed.substring(0, 3), 10),
+      width: parseInt(seed.substring(3, 6), 10),
+      hair: parseInt(seed.substring(6, 8), 10),
+      pants: parseInt(seed.substring(8, 10), 10),
+      shirt: parseInt(seed.substring(10, 12), 10),
+    };
+  }
+
 
   getSeedFromUrl() {
     const params = new URLSearchParams(window.location.search);
