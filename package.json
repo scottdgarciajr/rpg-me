@@ -30,7 +30,8 @@
         "@haxtheweb/d-d-d": "^9.0.13",
         "@haxtheweb/i18n-manager": "^9.0.13",
         "@haxtheweb/rpg-character": "^9.0.18",
-        "lit": "^3.2.0"
+        "lit": "^3.2.0",
+        "wired-elements": "^3.0.0-rc.6"
     },
     "devDependencies": {
         "@babel/preset-env": "^7.16.4",

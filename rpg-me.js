@@ -22,17 +22,16 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
     this.t = this.t || {};
     this.t = {
       ...this.t,
-      title: "Title",
+      title: "Character Customization",
       seed: "Seed",
     };
     this.registerLocalization({
       context: this,
       localesPath:
-        new URL("./locales/rpg-me.ar.json", import.meta.url).href +
-        "/../",
+        new URL("./locales/rpg-me.ar.json", import.meta.url).href + "/../",
       locales: ["ar", "es", "hi", "zh"],
     });
-    
+
     // Initialize character properties
     this.characterProps = {
       accessories: 0,
@@ -60,7 +59,7 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
     return {
       ...super.properties,
       title: { type: String },
-      seed: { type: String }, // Change seed to a string so each character can be modified
+      seed: { type: String },
       characterProps: { type: Object }
     };
   }
@@ -77,25 +76,48 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
       .wrapper {
         margin: var(--ddd-spacing-2);
         padding: var(--ddd-spacing-4);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
-      h3 span {
-        font-size: var(--rpg-me-label-font-size, var(--ddd-font-size-s));
+      h3 {
+        font-size: var(--ddd-font-size-l);
+        margin-bottom: var(--ddd-spacing-3);
       }
       .seed-inputs {
         display: flex;
         gap: 10px;
-        margin-top: 10px;
-      }
-      input {
-        width: 50px;
-        text-align: center;
-      }
-      .character-inputs {
         margin-top: 20px;
       }
-      .character-inputs label {
-        display: block;
-        margin-bottom: 5px;
+      input {
+        width: 60px;
+        text-align: center;
+        padding: 5px;
+        background-color: var(--ddd-theme-background);
+        border: 1px solid var(--ddd-theme-primary);
+        border-radius: 4px;
+      }
+      .character-customization {
+        margin-top: 30px;
+        width: 100%;
+        max-width: 400px;
+      }
+      .character-section {
+        margin-bottom: 20px;
+      }
+      .character-section h4 {
+        font-size: var(--ddd-font-size-m);
+        color: var(--ddd-theme-accent);
+      }
+      .character-section label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: var(--ddd-font-size-s);
+      }
+      .character-section input[type="range"] {
+        width: 100%;
+        margin: 5px 0;
       }
     `];
   }
@@ -103,7 +125,7 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
   render() {
     return html`
       <div class="wrapper">
-        <h3><span>${this.t.title}:</span> ${this.title}</h3>
+        <h3>${this.t.title}</h3>
         <rpg-character
           .seed="${this.seed}"
           .accessories="${this.characterProps.accessories}"
@@ -125,7 +147,7 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
           .fire="${this.characterProps.fire}"
           .demo="${this.characterProps.demo}"
         ></rpg-character>
-        
+
         <div class="seed-inputs">
           <label for="seed">${this.t.seed}:</label>
           <input
@@ -136,23 +158,86 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
           />
         </div>
 
-        <div class="character-inputs">
-          <h4>Character Customization</h4>
-          
-          ${Object.keys(this.characterProps).map(prop => html`
-            <label for="${prop}">
-              ${prop.charAt(0).toUpperCase() + prop.slice(1)}:
+        <div class="character-customization">
+          <div class="character-section">
+            <h4>Appearance</h4>
+            <label for="height">
+              Height:
               <input
-                id="${prop}"
-                type="number"
-                .value="${this.characterProps[prop]}"
-                @input="${(e) => this._onPropertyChange(e, prop)}"
-                min="0"
-                max="9"
+                type="range"
+                id="height"
+                min="100"
+                max="250"
+                step="1"
+                .value="${this.characterProps.height}"
+                @input="${(e) => this._onPropertyChange(e, 'height')}"
               />
             </label>
-          `)}
-          
+            <label for="width">
+              Width:
+              <input
+                type="range"
+                id="width"
+                min="50"
+                max="200"
+                step="1"
+                .value="${this.characterProps.width}"
+                @input="${(e) => this._onPropertyChange(e, 'width')}"
+              />
+            </label>
+          </div>
+
+          <div class="character-section">
+            <h4>Face</h4>
+            <label for="face">
+              Face:
+              <input
+                type="range"
+                id="face"
+                min="0"
+                max="10"
+                .value="${this.characterProps.face}"
+                @input="${(e) => this._onPropertyChange(e, 'face')}"
+              />
+            </label>
+            <label for="hair">
+              Hair:
+              <input
+                type="range"
+                id="hair"
+                min="0"
+                max="10"
+                .value="${this.characterProps.hair}"
+                @input="${(e) => this._onPropertyChange(e, 'hair')}"
+              />
+            </label>
+          </div>
+
+          <div class="character-section">
+            <h4>Clothing</h4>
+            <label for="shirt">
+              Shirt:
+              <input
+                type="range"
+                id="shirt"
+                min="0"
+                max="10"
+                .value="${this.characterProps.shirt}"
+                @input="${(e) => this._onPropertyChange(e, 'shirt')}"
+              />
+            </label>
+            <label for="pants">
+              Pants:
+              <input
+                type="range"
+                id="pants"
+                min="0"
+                max="10"
+                .value="${this.characterProps.pants}"
+                @input="${(e) => this._onPropertyChange(e, 'pants')}"
+              />
+            </label>
+          </div>
         </div>
         
         <slot></slot>
