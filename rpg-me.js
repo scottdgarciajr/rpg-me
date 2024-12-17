@@ -155,13 +155,12 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
 
         <div class="inputs-panel">
           <h2>Customize Your Character</h2>
-          ${this._renderGenderToggle()} <!-- Gender selection -->
           ${this._renderSliderRow([
             { label: "Accessories", key: "accessories", range: 9 },
-            { label: "Base", key: "base", range: 5, min: this.characterSettings.gender === 'male' ? 0 : 5 },
+            { label: "Has Hair", key: "base", range: 1},
             { label: "Face", key: "face", range: 5 },
             { label: "Face Item", key: "faceitem", range: 9 },
-            { label: "Hair", key: "hair", range: 9 },
+            { label: "Hair Color (must have hair)", key: "hair", range: 9 },
             { label: "Pants", key: "pants", range: 9 },
             { label: "Shirt", key: "shirt", range: 9 },
             { label: "Skin", key: "skin", range: 9 },
@@ -249,60 +248,48 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
       </div>
     `;
   }
-
-  _renderRadioGroupWithValues(label, key, values) {
-  return html`
-    <label for="${key}">${label}</label>
-    <wired-radio-group
-      id="${key}"
-      value="${this.characterSettings[key] || 'none'}"
-      @change="${(e) => this._updateCharacterSetting(key, e.target.value)}"
-      tabindex="0"
-      aria-labelledby="${key}"
-    >
-      ${values.map(
-        (value) =>
-          html`<wired-radio-button value="${value}">${value.charAt(0).toUpperCase() + value.slice(1)}</wired-radio-button>`
-      )}
-    </wired-radio-group>
-  `;
-}
-
-
-  _renderGenderToggle() {
-    return html`
-      <wired-combo
-        id="gender-toggle"
-        label="Gender"
-        value="${this.characterSettings.gender || 'male'}"
-        @change="${this._onGenderChange}"
-        tabindex="0"
-      >
-        <wired-item value="male">Male</wired-item>
-        <wired-item value="female">Female</wired-item>
-      </wired-combo>
-    `;
-  }
+ 
 
   _renderSliderRow(sliders) {
     return sliders.map(
-      ({ label, key, range, min = 0, disabled = false }) => html`
-        <div class="slider-row">
-          <label for="${key}">${label}</label>
-          <wired-slider
-            id="${key}"
-            .value="${this.characterSettings[key]}"
-            min="${min}"
-            max="${range}"
-            @change="${(e) => this._updateCharacterSetting(key, e.target.value)}"
-            ?disabled="${disabled}"
-            tabindex="0"
-            aria-labelledby="${key}"
-          ></wired-slider>
-        </div>
-      `
+      ({ label, key, range, min = 0, disabled = false }) => {
+        if (key === "base") {
+          // Replace the slider with a checkbox for the "base" property
+          return html`
+            <div class="slider-row">
+              <label for="${key}">${label}</label>
+              <wired-checkbox
+                id="${key}"
+                .checked="${this.characterSettings[key] === 1}"
+                @change="${(e) => this._updateCharacterSetting(key, e.target.checked ? 1 : 0)}"
+                tabindex="0"
+                aria-labelledby="${key}"
+              >
+                ${label}
+              </wired-checkbox>
+            </div>
+          `;
+        } else {
+          return html`
+            <div class="slider-row">
+              <label for="${key}">${label}</label>
+              <wired-slider
+                id="${key}"
+                .value="${this.characterSettings[key]}"
+                min="${min}"
+                max="${range}"
+                @change="${(e) => this._updateCharacterSetting(key, e.target.value)}"
+                ?disabled="${disabled}"
+                tabindex="0"
+                aria-labelledby="${key}"
+              ></wired-slider>
+            </div>
+          `;
+        }
+      }
     );
   }
+  
 
   _renderDropdownWithValues(label, key, values) {
     return html`
@@ -386,16 +373,16 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
 
   _generateSettingsFromUrl(urlParams) {
     return {
-      gender: urlParams.get("gender") || 'male',
       size: urlParams.get("size") || 300,
       seed: urlParams.get("seed") || "randomSeed",
       hat: urlParams.get("hat") || "none",
       fire: urlParams.get("fire") === 'true',
       walking: urlParams.get("walking") === 'true',
       circle: urlParams.get("circle") === 'true',
-      // Add additional properties here as needed
+      base: urlParams.get("base") === '1' ? 1 : 0,  // Default to 1 or 0 based on URL
     };
   }
+  
 }
 
 customElements.define(RpgMe.tag, RpgMe);
