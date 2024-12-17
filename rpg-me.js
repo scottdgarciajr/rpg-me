@@ -34,95 +34,108 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
         :host {
           display: block;
           font-family: var(--ddd-font-navigation);
-          background-color: var(--ddd-theme-background-secondary);
-          padding: var(--ddd-spacing-5);
+          background: var(--ddd-theme-default-gradient-hero);
+          padding: 1rem;
+          color: var(--ddd-theme-default-white);
         }
+
         .container {
           display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: var(--ddd-spacing-5);
+          grid-template-columns: 1fr;
+          gap: 2rem;
+          padding: 2rem;
         }
+
+        @media (min-width: var(--ddd-breakpoint-md)) {
+          .container {
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+
         .character-preview {
           text-align: center;
+          background: var(--ddd-theme-default-gradient-hero2);
+          padding: 1rem;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        rpg-character {
-          margin-bottom: var(--ddd-spacing-3);
-        }
+
         .inputs-panel {
-          padding: var(--ddd-spacing-5);
-          background-color: var(--ddd-theme-background-primary);
+          padding: 2rem;
+          background: var(--ddd-theme-default-limestoneLight);
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
+        h2 {
+          color: var(--ddd-theme-default-navy80);
+          font-size: 1.5rem;
+          margin-bottom: 1rem;
+        }
+
         wired-combo,
         wired-checkbox,
         wired-slider,
         wired-button {
           display: block;
-          margin-bottom: var(--ddd-spacing-4);
-        }
-        .seed-display {
-          font-size: var(--ddd-font-size-s);
-          margin-top: var(--ddd-spacing-2);
+          margin-bottom: 1rem;
         }
 
-        /* Modal Styles */
+        wired-button {
+          background: var(--ddd-theme-default-accent);
+          color: var(--ddd-theme-default-white);
+          border-radius: 4px;
+        }
+
+        wired-button:hover {
+          background: var(--ddd-theme-default-beaver80);
+        }
+
         .modal-overlay {
           position: fixed;
           top: 0;
           left: 0;
           width: 100%;
           height: 100%;
-          background-color: rgba(0, 0, 0, 0.8);
+          background: rgba(0, 0, 0, 0.8);
           display: flex;
           justify-content: center;
           align-items: center;
           visibility: hidden;
           opacity: 0;
-          transition: opacity 0.3s ease, visibility 0s 0.3s;
+          transition: opacity 0.3s ease-in-out;
         }
+
         .modal-overlay.show {
           visibility: visible;
           opacity: 1;
-          transition: opacity 0.3s ease;
         }
+
         .modal-content {
-          background-color: var(--ddd-theme-background-primary);
-          padding: var(--ddd-spacing-5);
-          border-radius: var(--ddd-border-radius);
+          background: var(--ddd-theme-default-shrineLight);
+          padding: 2rem;
+          border-radius: 8px;
           width: 80%;
           max-width: 500px;
           text-align: center;
-          box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
         }
-        .modal-header {
-          font-size: var(--ddd-font-size-l);
-          margin-bottom: var(--ddd-spacing-4);
-          color: var(--ddd-theme-text-primary);
-        }
+
         .share-option-button {
-          background-color: var(--ddd-theme-primary);
-          padding: var(--ddd-spacing-4);
-          margin: var(--ddd-spacing-2);
+          background: var(--ddd-theme-default-futureLime);
+          padding: 0.75rem 1rem;
+          border-radius: 4px;
+          color: var(--ddd-theme-default-white);
           cursor: pointer;
-          border-radius: var(--ddd-border-radius);
-          color: #fff;
-          width: 100%;
-          text-align: center;
-          transition: background-color 0.2s ease;
         }
+
         .share-option-button:hover {
-          background-color: var(--ddd-theme-primary-hover);
+          background: var(--ddd-theme-default-discoveryCoral);
         }
+
         .close-button {
-          background-color: var(--ddd-theme-secondary);
-          color: #fff;
-          padding: var(--ddd-spacing-3);
-          border-radius: var(--ddd-border-radius);
-          margin-top: var(--ddd-spacing-3);
-          cursor: pointer;
-          transition: background-color 0.2s ease;
-        }
-        .close-button:hover {
-          background-color: var(--ddd-theme-secondary-hover);
+          margin-top: 1rem;
+          background: var(--ddd-theme-default-error);
+          color: var(--ddd-theme-default-white);
         }
       `,
     ];
@@ -132,22 +145,23 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
     return html`
       <div class="container">
         <div class="character-preview">
-          <rpg-character
-            .seed="${this.characterSettings.seed}"
-            .hat="${this.characterSettings.hat}"
-            .base="${this.characterSettings.base}"
-            .face="${this.characterSettings.face}"
-            .hair="${this.characterSettings.hair}"
-            .pants="${this.characterSettings.pants}"
-            .shirt="${this.characterSettings.shirt}"
-            .skin="${this.characterSettings.skin}"
-            ?fire="${this.characterSettings.fire}"
-            ?walking="${this.characterSettings.walking}"
-            ?circle="${this.characterSettings.circle}"
-            .size="${this.characterSettings.size}"
-            demo
-            aria-label="Character Preview"
-          ></rpg-character>
+        <rpg-character
+          .seed="${this.characterSettings.seed}"
+          .hat="${this.characterSettings.hat}"
+          .base="${this.characterSettings.base}"
+          .face="${this.characterSettings.face}"
+          .hair="${this.characterSettings.hair}"
+          .pants="${this.characterSettings.pants}"
+          .shirt="${this.characterSettings.shirt}"
+          .skin="${this.characterSettings.skin}"
+          ?fire="${this.characterSettings.fire}"
+          ?walking="${this.characterSettings.walking}"
+          ?circle="${this.characterSettings.circle}"
+          .size="${this.characterSettings.size}"
+          style="transform: scale(${this.characterSettings.size / 100});"
+          aria-label="Character Preview"
+        ></rpg-character>
+
           <div class="seed-display" tabindex="0" aria-label="Current character seed">
             Seed: ${this.characterSettings.seed}
           </div>
@@ -185,7 +199,7 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
             id="size"
             .value="${this.characterSettings.size}"
             min="100"
-            max="600"
+            max="310"
             @change="${(e) => this._updateCharacterSetting('size', e.target.value)}"
             @keydown="${this._onSliderKeydown}"
             aria-labelledby="size"
