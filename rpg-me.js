@@ -155,20 +155,18 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
 
         <div class="inputs-panel">
           <h2>Customize Your Character</h2>
-          ${this._renderGenderToggle()} <!-- Gender selection -->
           ${this._renderSliderRow([
-            { label: "Accessories", key: "accessories", range: 9 },
-            { label: "Base", key: "base", range: 5, min: this.characterSettings.gender === 'male' ? 0 : 5 },
-            { label: "Face", key: "face", range: 5 },
-            { label: "Face Item", key: "faceitem", range: 9 },
-            { label: "Hair", key: "hair", range: 9 },
-            { label: "Pants", key: "pants", range: 9 },
-            { label: "Shirt", key: "shirt", range: 9 },
-            { label: "Skin", key: "skin", range: 9 },
-            { label: "Hat Color", key: "hatcolor", range: 9 },
-            { label: "Leg", key: "leg", range: 0, disabled: true }
+            { label: "Accessories", key: "base", range: 10 },
+            { label: "Face", key: "face", range: 6 },
           ])}
-
+          ${this._renderSliderRow([
+            { label: "Hair", key: "hair", range: 10 },
+            { label: "Pants", key: "pants", range: 10 },
+          ])}
+          ${this._renderSliderRow([
+            { label: "Shirt", key: "shirt", range: 10 },
+            { label: "Skin", key: "skin", range: 10 },
+          ])}
           ${this._renderDropdownWithValues("Hat", "hat", [
             "none",
             "bunny",
@@ -182,7 +180,6 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
             "pirate",
             "watermelon",
           ])}
-
           <label for="size">Character Size:</label>
           <wired-slider
             id="size"
@@ -194,7 +191,6 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
             aria-labelledby="size"
             tabindex="0"
           ></wired-slider>
-
           ${this._renderCheckbox("Fire", "fire")}
           ${this._renderCheckbox("Walking", "walking")}
           ${this._renderCheckbox("Circle", "circle")}
@@ -250,56 +246,33 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
     `;
   }
 
-  _renderRadioGroupWithValues(label, key, values) {
-  return html`
-    <label for="${key}">${label}</label>
-    <wired-radio-group
-      id="${key}"
-      value="${this.characterSettings[key] || 'none'}"
-      @change="${(e) => this._updateCharacterSetting(key, e.target.value)}"
-      tabindex="0"
-      aria-labelledby="${key}"
-    >
-      ${values.map(
-        (value) =>
-          html`<wired-radio-button value="${value}">${value.charAt(0).toUpperCase() + value.slice(1)}</wired-radio-button>`
-      )}
-    </wired-radio-group>
-  `;
-}
-
-
-  _renderGenderToggle() {
-    return html`
-      <wired-combo
-        id="gender-toggle"
-        label="Gender"
-        value="${this.characterSettings.gender || 'male'}"
-        @change="${this._onGenderChange}"
-        tabindex="0"
-      >
-        <wired-item value="male">Male</wired-item>
-        <wired-item value="female">Female</wired-item>
-      </wired-combo>
-    `;
+  _onSliderKeydown(event) {
+    if (event.key === "ArrowUp" || event.key === "ArrowRight") {
+      this._updateCharacterSetting(event.target.id, parseInt(event.target.value) + 1);
+    } else if (event.key === "ArrowDown" || event.key === "ArrowLeft") {
+      this._updateCharacterSetting(event.target.id, parseInt(event.target.value) - 1);
+    }
   }
 
-  _renderSliderRow(sliders) {
-    return sliders.map(
-      ({ label, key, range, min = 0, disabled = false }) => html`
-        <div class="slider-row">
-          <label for="${key}">${label}</label>
-          <wired-slider
-            id="${key}"
-            .value="${this.characterSettings[key]}"
-            min="${min}"
-            max="${range}"
-            @change="${(e) => this._updateCharacterSetting(key, e.target.value)}"
-            ?disabled="${disabled}"
-            tabindex="0"
-            aria-labelledby="${key}"
-          ></wired-slider>
-        </div>
+  _onButtonKeydown(event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.target.click();
+    }
+  }
+
+  _renderSliderRow(rows) {
+    return rows.map(
+      ({ label, key, range }) => html`
+        <label for="${key}">${label}</label>
+        <wired-slider
+          id="${key}"
+          .value="${this.characterSettings[key]}"
+          min="0"
+          max="${range}"
+          @change="${(e) => this._updateCharacterSetting(key, e.target.value)}"
+          aria-labelledby="${key}"
+          tabindex="0"
+        ></wired-slider>
       `
     );
   }
@@ -307,17 +280,8 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
   _renderDropdownWithValues(label, key, values) {
     return html`
       <label for="${key}">${label}</label>
-      <wired-combo
-        id="${key}"
-        value="${this.characterSettings[key] || 'none'}"
-        @change="${(e) => this._updateCharacterSetting(key, e.target.value)}"
-        tabindex="0"
-        aria-labelledby="${key}"
-      >
-        ${values.map(
-          (value) =>
-            html`<wired-item value="${value}">${value.charAt(0).toUpperCase() + value.slice(1)}</wired-item>`
-        )}
+      <wired-combo id="${key}" .value="${this.characterSettings[key]}" @change="${(e) => this._updateCharacterSetting(key, e.target.value)}" tabindex="0">
+        ${values.map((value) => html`<wired-item value="${value}">${value}</wired-item>`)}
       </wired-combo>
     `;
   }
@@ -326,10 +290,9 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
     return html`
       <wired-checkbox
         id="${key}"
-        .checked="${this.characterSettings[key]}"
+        ?checked="${this.characterSettings[key]}"
         @change="${(e) => this._updateCharacterSetting(key, e.target.checked)}"
         tabindex="0"
-        aria-labelledby="${key}"
       >
         ${label}
       </wired-checkbox>
@@ -337,31 +300,22 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
   }
 
   _updateCharacterSetting(key, value) {
-    this.characterSettings = {
-      ...this.characterSettings,
-      [key]: value,
-    };
-    this._updateUrlWithSettings();
-  }
-
-  _updateUrlWithSettings() {
-    const urlParams = new URLSearchParams();
-    for (const key in this.characterSettings) {
-      urlParams.set(key, this.characterSettings[key]);
-    }
-    history.pushState(null, '', '?' + urlParams.toString());
-  }
-
-  _onSliderKeydown(event) {
-    if (event.key === 'Enter') {
-      event.target.dispatchEvent(new Event('change'));
+    if (this.characterSettings[key] !== value) {
+      this.characterSettings = { ...this.characterSettings, [key]: value };
+      this._updateUrlParams();
     }
   }
 
-  _onButtonKeydown(event) {
-    if (event.key === 'Enter') {
-      event.target.click();
+  _updateUrlParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    for (const [key, value] of Object.entries(this.characterSettings)) {
+      if (value) {
+        urlParams.set(key, value);
+      } else {
+        urlParams.delete(key);
+      }
     }
+    history.replaceState(null, "", `?${urlParams.toString()}`);
   }
 
   _toggleShareOptions() {
@@ -369,32 +323,32 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
   }
 
   _shareOnSocialMedia(platform) {
-    console.log(`Sharing on ${platform}`);
-    this._toggleShareOptions();
+    console.log(`Sharing on ${platform}...`);
   }
 
   _copyToClipboard() {
-    const textToCopy = window.location.href;
-    navigator.clipboard.writeText(textToCopy).then(
-      () => {
-        console.log('URL copied to clipboard');
-        this._toggleShareOptions();
-      },
-      (err) => console.error('Error copying text: ', err)
-    );
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      console.log("Link copied to clipboard");
+    });
   }
 
+  // Function to generate character settings from URL parameters
   _generateSettingsFromUrl(urlParams) {
-    return {
-      gender: urlParams.get("gender") || 'male',
-      size: urlParams.get("size") || 300,
-      seed: urlParams.get("seed") || "randomSeed",
+    const generatedSettings = {
+      base: parseInt(urlParams.get("base") || "0", 10),
+      face: parseInt(urlParams.get("face") || "0", 10),
+      hair: parseInt(urlParams.get("hair") || "0", 10),
+      pants: parseInt(urlParams.get("pants") || "0", 10),
+      shirt: parseInt(urlParams.get("shirt") || "0", 10),
+      skin: parseInt(urlParams.get("skin") || "0", 10),
       hat: urlParams.get("hat") || "none",
-      fire: urlParams.get("fire") === 'true',
-      walking: urlParams.get("walking") === 'true',
-      circle: urlParams.get("circle") === 'true',
-      // Add additional properties here as needed
+      size: parseInt(urlParams.get("size") || "100", 10),
+      fire: urlParams.get("fire") === "true",
+      walking: urlParams.get("walking") === "true",
+      circle: urlParams.get("circle") === "true",
     };
+    return generatedSettings;
   }
 }
 
