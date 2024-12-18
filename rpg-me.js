@@ -169,8 +169,9 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
 
         <div class="inputs-panel">
           <h2>Customize Your Character</h2>
+          ${this._renderBaseCheckbox("Base", "base")}
           ${this._renderSliderRow([
-            { label: "Accessories", key: "base", range: 10 },
+            { label: "Accessories", key: "accessories", range: 10 },
             { label: "Face", key: "face", range: 6 },
           ])}
           ${this._renderSliderRow([
@@ -291,6 +292,24 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
     );
   }
 
+  _renderBaseCheckbox(label, key) {
+    return html`
+      <wired-checkbox
+        id="${key}"
+        ?checked="${this.characterSettings[key] === 1}"
+        @change="${(e) => this._toggleBase(key, e.target.checked)}"
+        tabindex="0"
+      >
+        ${label}
+      </wired-checkbox>
+    `;
+  }
+  _toggleBase(key, isChecked) {
+    const newValue = isChecked ? 1 : 0;
+    this._updateCharacterSetting(key, newValue);
+  }
+  
+
   _renderDropdownWithValues(label, key, values) {
     return html`
       <label for="${key}">${label}</label>
@@ -351,6 +370,7 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
   _generateSettingsFromUrl(urlParams) {
     const generatedSettings = {
       base: parseInt(urlParams.get("base") || "0", 10),
+      accessories: parseInt(urlParams.get("accessories") || "0", 10), // Added accessories
       face: parseInt(urlParams.get("face") || "0", 10),
       hair: parseInt(urlParams.get("hair") || "0", 10),
       pants: parseInt(urlParams.get("pants") || "0", 10),
@@ -364,6 +384,7 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
     };
     return generatedSettings;
   }
+  
 }
 
 customElements.define(RpgMe.tag, RpgMe);
