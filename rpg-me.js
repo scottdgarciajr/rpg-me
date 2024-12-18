@@ -44,6 +44,7 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
           grid-template-columns: 1fr;
           gap: 2rem;
           padding: 2rem;
+          align-items: start;  /* Align items to the top to prevent overflow */
         }
 
         @media (min-width: var(--ddd-breakpoint-md)) {
@@ -137,8 +138,10 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
           background: var(--ddd-theme-default-error);
           color: var(--ddd-theme-default-white);
         }
+        
       `,
     ];
+    
   }
 
   render() {
@@ -170,57 +173,115 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
         </div>
 
         <div class="inputs-panel">
-          <h2>Customize Your Character</h2>
-          ${this._renderBaseCheckbox("Hair", "base")}
-          ${this._renderSliderRow([
-            { label: "Accessories", key: "accessories", range: 9 },
-            { label: "Face", key: "face", range: 5 },
-            { label: "Face Item", key: "faceItem", range: 9 },
-          ])}
-          ${this._renderSliderRow([
-            { label: "Hair", key: "hair", range: 10 },
-            { label: "Pants", key: "pants", range: 10 },
-          ])}
-          ${this._renderSliderRow([
-            { label: "Shirt", key: "shirt", range: 10 },
-            { label: "Skin", key: "skin", range: 10 },
-          ])}
-          ${this._renderDropdownWithValues("Hat", "hat", [
-            "none",
-            "bunny",
-            "coffee",
-            "construction",
-            "cowboy",
-            "education",
-            "knight",
-            "ninja",
-            "party",
-            "pirate",
-            "watermelon",
-          ])}
-          <label for="size">Character Size:</label>
-          <wired-slider
-            id="size"
-            .value="${this.characterSettings.size}"
-            min="100"
-            max="310"
-            @change="${(e) => this._updateCharacterSetting('size', e.target.value)}"
-            @keydown="${this._onSliderKeydown}"
-            aria-labelledby="size"
-            tabindex="0"
-          ></wired-slider>
-          ${this._renderCheckbox("Fire", "fire")}
-          ${this._renderCheckbox("Walking", "walking")}
-          ${this._renderCheckbox("Circle", "circle")}
-          <wired-button
-            @click="${this._toggleShareOptions}"
-            @keydown="${this._onButtonKeydown}"
-            tabindex="0"
-            aria-label="Open share options"
-            >Share</wired-button
-          >
-        </div>
-      </div>
+  <h2>Customize Your Character</h2>
+  <!--Checkboxes-->
+  ${this._renderBaseCheckbox("Hair", "base")}
+  ${this._renderCheckbox("Fire", "fire")}
+  ${this._renderCheckbox("Walking", "walking")}
+  ${this._renderCheckbox("Circle", "circle")}
+  <!--Sliders-->
+  ${this._renderSliderRow([
+    { label: "Accessories", key: "accessories", range: 9 },
+    { label: "Face", key: "face", range: 5 },
+    { label: "Face Item", key: "faceItem", range: 9 },
+  ])}
+  ${this._renderSliderRow([
+    { label: "Hair", key: "hair", range: 10 },
+    { label: "Pants", key: "pants", range: 10 },
+  ])}
+  ${this._renderSliderRow([
+    { label: "Shirt", key: "shirt", range: 10 },
+    { label: "Skin", key: "skin", range: 10 },
+  ])}
+  <p>Select Hat</p>
+  <div class="dropdown-container">
+    ${this._renderDropdownWithValues("", "hat", [
+      "none",
+      "bunny",
+      "coffee",
+      "construction",
+      "cowboy",
+      "education",
+      "knight",
+      "ninja",
+      "party",
+      "pirate",
+      "watermelon",
+    ])}
+  </div>
+  <label for="size">Character Size:</label>
+  <wired-slider
+    id="size"
+    .value="${this.characterSettings.size}"
+    min="100"
+    max="310"
+    @change="${(e) => this._updateCharacterSetting('size', e.target.value)}"
+    @keydown="${(e) => this._onSliderKeydown(e)}"
+    aria-labelledby="size"
+    tabindex="0"
+  ></wired-slider>
+  <!-- Share Button -->
+<wired-button
+  @click="${this._toggleShareOptions}"
+  @keydown="${this._onButtonKeydown}"
+  tabindex="0"
+  aria-label="Open share options"
+>
+  Share
+</wired-button>
+
+<!-- Modal for Share Options -->
+<div class="modal-overlay ${this.showShareOptions ? 'show' : ''}" aria-hidden="${!this.showShareOptions}">
+  <div class="modal-content" role="dialog" aria-labelledby="modal-header" tabindex="0">
+    <div class="modal-header" id="modal-header" aria-live="assertive">Share Your Character</div>
+    
+    <wired-button
+      class="share-option-button"
+      @click="${() => this._shareOnSocialMedia('X')}"
+      @keydown="${this._onButtonKeydown}"
+      tabindex="0"
+      aria-label="Share on X"
+    >
+      Share on X
+    </wired-button>
+
+    <wired-button
+      class="share-option-button"
+      @click="${() => this._shareOnSocialMedia('LinkedIn')}"
+      @keydown="${this._onButtonKeydown}"
+      tabindex="0"
+      aria-label="Share on LinkedIn"
+    >
+      Share on LinkedIn
+    </wired-button>
+
+    <!-- Copy to Clipboard Button -->
+    <wired-button
+      class="share-option-button"
+      @click="${this._copyToClipboard}"
+      @keydown="${this._onButtonKeydown}"
+      tabindex="0"
+      aria-label="Copy character link"
+    >
+      Copy Link
+    </wired-button>
+
+    <!-- Close Button -->
+    <wired-button
+      class="close-button"
+      @click="${this._toggleShareOptions}"
+      @keydown="${this._onButtonKeydown}"
+      tabindex="0"
+      aria-label="Close share options"
+    >
+      Close
+    </wired-button>
+  </div>
+</div>
+
+
+</div>
+
 
       <!-- Modal for Share Options -->
       <div class="modal-overlay ${this.showShareOptions ? 'show' : ''}" aria-hidden="${!this.showShareOptions}">
@@ -391,8 +452,35 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
   }
 
   _shareOnSocialMedia(platform) {
-    console.log(`Sharing on ${platform}...`);
+    const url = window.location.href; // Get the current URL with parameters
+    let shareUrl;
+  
+    switch (platform) {
+      case "X":
+        // X (Twitter) sharing URL
+        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`;
+        break;
+  
+      case "LinkedIn":
+        // LinkedIn sharing URL
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+        break;
+  
+      case "Facebook":
+        // Facebook sharing URL
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+        break;
+  
+      default:
+        console.log("Unknown platform");
+        return;
+    }
+  
+    // Open the share URL in a new tab/window
+    window.open(shareUrl, "_blank");
+    console.log(`Sharing on ${platform}:`, shareUrl);
   }
+  
 
   _copyToClipboard() {
     const url = window.location.href;
@@ -412,7 +500,7 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
       pants: parseInt(urlParams.get("pants") || "0", 10),
       shirt: parseInt(urlParams.get("shirt") || "0", 10),
       skin: parseInt(urlParams.get("skin") || "0", 10),
-      hat: urlParams.get("hat") || "none",
+      hat: urlParams.get("Hat") || "none",
       size: parseInt(urlParams.get("size") || "100", 10),
       fire: urlParams.get("fire") === "true",
       walking: urlParams.get("walking") === "true",
