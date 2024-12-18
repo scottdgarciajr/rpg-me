@@ -36,7 +36,7 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
           font-family: var(--ddd-font-navigation);
           background: var(--ddd-theme-default-gradient-hero);
           padding: 1rem;
-          color: var(--ddd-theme-default-white);
+          color: var(--ddd-theme-default-navy80);
         }
 
         .container {
@@ -151,6 +151,7 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
           .base="${this.characterSettings.base}"
           .accessories="${this.characterSettings.accessories}"
           .face="${this.characterSettings.face}"
+          .faceItem="${this.characterSettings.faceItem}"
           .hair="${this.characterSettings.hair}"
           .pants="${this.characterSettings.pants}"
           .shirt="${this.characterSettings.shirt}"
@@ -170,10 +171,11 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
 
         <div class="inputs-panel">
           <h2>Customize Your Character</h2>
-          ${this._renderBaseCheckbox("Base", "base")}
+          ${this._renderBaseCheckbox("Hair", "base")}
           ${this._renderSliderRow([
             { label: "Accessories", key: "accessories", range: 9 },
             { label: "Face", key: "face", range: 5 },
+            { label: "Face Item", key: "faceItem", range: 9 },
           ])}
           ${this._renderSliderRow([
             { label: "Hair", key: "hair", range: 10 },
@@ -314,11 +316,43 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
   _renderDropdownWithValues(label, key, values) {
     return html`
       <label for="${key}">${label}</label>
-      <wired-combo id="${key}" .value="${this.characterSettings[key]}" @change="${(e) => this._updateCharacterSetting(key, e.target.value)}" tabindex="0">
-        ${values.map((value) => html`<wired-item value="${value}">${value}</wired-item>`)}
-      </wired-combo>
+      <wired-listbox
+        id="${key}"
+        .selected="${this.characterSettings[key]}"
+        @selected="${(e) => this._onListboxChange(key, e)}"
+      >
+        ${values.map(
+          (value) => html`<wired-item value="${value}">${value}</wired-item>`
+        )}
+      </wired-listbox>
     `;
   }
+  
+  
+  
+  _onListboxChange(key, event) {
+    const newValue = event.detail.selected; // Correct value retrieval
+    console.log(`${key} changed to:`, newValue);
+  
+    // Update character settings
+    this._updateCharacterSetting(key, newValue);
+  }
+  
+  
+  
+  
+  _handleDropdownChange(key, event) {
+    const combo = event.target;
+    const selectedItem = combo.querySelector('wired-item[selected]');
+    const newValue = selectedItem ? selectedItem.getAttribute('value') : combo.value;
+  
+    console.log(`${key} changed to:`, newValue);
+    this._updateCharacterSetting(key, newValue);
+  }
+  
+  
+  
+  
 
   _renderCheckbox(label, key) {
     return html`
@@ -371,8 +405,9 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
   _generateSettingsFromUrl(urlParams) {
     const generatedSettings = {
       base: parseInt(urlParams.get("base") || "0", 10),
-      accessories: parseInt(urlParams.get("accessories") || "0", 10), // Added accessories
+      accessories: parseInt(urlParams.get("accessories") || "0", 10),
       face: parseInt(urlParams.get("face") || "0", 10),
+      faceItem: parseInt(urlParams.get("faceItem") || "0", 10), 
       hair: parseInt(urlParams.get("hair") || "0", 10),
       pants: parseInt(urlParams.get("pants") || "0", 10),
       shirt: parseInt(urlParams.get("shirt") || "0", 10),
@@ -382,7 +417,7 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
       fire: urlParams.get("fire") === "true",
       walking: urlParams.get("walking") === "true",
       circle: urlParams.get("circle") === "true",
-    };
+    };    
     return generatedSettings;
   }
   
