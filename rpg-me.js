@@ -149,6 +149,7 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
           .seed="${this.characterSettings.seed}"
           .hat="${this.characterSettings.hat}"
           .base="${this.characterSettings.base}"
+          .accessories="${this.characterSettings.accessories}"
           .face="${this.characterSettings.face}"
           .hair="${this.characterSettings.hair}"
           .pants="${this.characterSettings.pants}"
@@ -171,8 +172,8 @@ export class RpgMe extends DDDSuper(I18NMixin(LitElement)) {
           <h2>Customize Your Character</h2>
           ${this._renderBaseCheckbox("Base", "base")}
           ${this._renderSliderRow([
-            { label: "Accessories", key: "accessories", range: 10 },
-            { label: "Face", key: "face", range: 6 },
+            { label: "Accessories", key: "accessories", range: 9 },
+            { label: "Face", key: "face", range: 5 },
           ])}
           ${this._renderSliderRow([
             { label: "Hair", key: "hair", range: 10 },
